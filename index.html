@@ -1,0 +1,186 @@
+<!doctype html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <meta name="theme-color" content="#020713" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="apple-mobile-web-app-title" content="JUG SCAN" />
+  <link rel="manifest" href="manifest.webmanifest" />
+  <link rel="apple-touch-icon" href="icons/apple-touch-icon.png" />
+  <link rel="stylesheet" href="styles.css" />
+  <title>JUG SCAN</title>
+</head>
+<body>
+  <div id="app" class="app-shell">
+    <header class="topbar">
+      <div class="brand-lockup" aria-label="JUG SCAN">
+        <img src="assets/clown-face.png" alt="" class="brand-clown" />
+        <div>
+          <div class="brand">JUG SCAN</div>
+          <div id="dateLabel" class="date-label"></div>
+        </div>
+      </div>
+      <button id="changeStoreBtn" class="ghost-btn image-action store-change hidden" type="button" aria-label="店舗変更"><span>店舗変更</span></button>
+    </header>
+
+    <main>
+      <section id="storeScreen" class="screen store-screen active" aria-labelledby="storeTitle">
+        <div class="splash-hero">
+          <img src="assets/jugscan-logo.webp" alt="JUG SCAN" class="splash-logo" />
+          <p>店舗を選んで、ジャグラーの台データを高速記録。</p>
+        </div>
+
+        <div class="panel store-add-panel">
+          <div class="panel-title-row">
+            <span class="panel-icon">＋</span>
+            <h1 id="storeTitle">新しい店舗を追加</h1>
+          </div>
+          <label class="sr-only" for="newStoreName">店名</label>
+          <input id="newStoreName" class="text-input large" type="text" placeholder="店名を入力" autocomplete="off" />
+          <button id="startNewStoreBtn" class="primary-btn start-btn image-action" type="button" aria-label="この店舗で開始"><span>この店舗で開始</span></button>
+        </div>
+
+        <div class="panel">
+          <div class="section-heading-row">
+            <div>
+              <span class="eyebrow">STORE HISTORY</span>
+              <h2>最近使った店舗</h2>
+            </div>
+            <button id="showAllStoresBtn" class="text-btn" type="button">すべて表示</button>
+          </div>
+          <div id="recentStores" class="store-list"></div>
+          <div id="emptyStores" class="empty-state">まだ保存された店舗はありません。</div>
+        </div>
+      </section>
+
+      <section id="scanScreen" class="screen scan-screen" aria-labelledby="scanTitle">
+        <div class="store-strip neon-strip">
+          <div>
+            <span class="eyebrow">CURRENT STORE</span>
+            <strong id="currentStoreName"></strong>
+          </div>
+          <span id="recordCount" class="count-pill">0台</span>
+        </div>
+
+        <div class="panel compact-panel machine-panel">
+          <div class="section-heading-row machine-heading">
+            <div>
+              <span class="eyebrow">JUGGLER SELECT</span>
+              <h2 id="scanTitle">機種選択</h2>
+            </div>
+          </div>
+          <div id="primaryMachines" class="machine-grid"></div>
+          <label class="other-machine-wrap" for="otherMachineSelect">
+            <div class="other-machine-art"><img src="assets/machine-other.webp" alt="" /></div>
+            <select id="otherMachineSelect" class="select-input">
+              <option value="">その他の機種を選択</option>
+            </select>
+          </label>
+        </div>
+
+        <div class="panel compact-panel data-panel">
+          <div class="section-heading-row data-heading">
+            <div>
+              <span class="eyebrow">QUICK INPUT</span>
+              <h2>台データ入力</h2>
+            </div>
+            <button id="clearFormBtn" class="mini-btn clear-btn image-action" type="button" aria-label="入力クリア"><span>入力クリア</span></button>
+          </div>
+
+          <div class="input-grid">
+            <label class="metric-input machine-no">台番号
+              <input id="machineNo" class="number-input" type="text" inputmode="numeric" pattern="[0-9]*" autocomplete="off" />
+            </label>
+            <label class="metric-input games">累計G
+              <input id="games" class="number-input" type="text" inputmode="numeric" pattern="[0-9]*" autocomplete="off" />
+            </label>
+            <label class="metric-input bb">BB
+              <input id="bb" class="number-input" type="text" inputmode="numeric" pattern="[0-9]*" autocomplete="off" />
+            </label>
+            <label class="metric-input rb">RB
+              <input id="rb" class="number-input" type="text" inputmode="numeric" pattern="[0-9]*" autocomplete="off" />
+            </label>
+          </div>
+
+          <div class="probability-row" aria-live="polite">
+            <div class="probability-box reg"><span>REG確率</span><strong id="regProbability">—</strong></div>
+            <div class="probability-box combined"><span>合算確率</span><strong id="combinedProbability">—</strong></div>
+          </div>
+
+          <label class="note-label">備考（任意）
+            <input id="note" class="text-input" type="text" placeholder="例：角2" autocomplete="off" />
+          </label>
+
+          <button id="registerBtn" class="primary-btn register-btn image-action" type="button" aria-label="この台を登録"><span>＋ この台を登録</span></button>
+          <button id="cancelEditBtn" class="secondary-btn hidden" type="button">編集をキャンセル</button>
+        </div>
+
+        <div class="panel compact-panel list-panel">
+          <div class="section-heading-row list-heading">
+            <div>
+              <span class="eyebrow">REGISTERED</span>
+              <h2 id="listMachineTitle">ファンキー2</h2>
+            </div>
+          </div>
+          <div class="sort-row" role="group" aria-label="並び順">
+            <button class="sort-btn sort-created active" data-sort="created" type="button">登録順</button>
+            <button class="sort-btn sort-reg" data-sort="reg" type="button">REG順</button>
+            <button class="sort-btn sort-combined" data-sort="combined" type="button">合算順</button>
+            <button class="sort-btn sort-number" data-sort="number" type="button">台番号順</button>
+          </div>
+          <div id="recordsList" class="records-list"></div>
+          <div id="emptyRecords" class="empty-state">この機種はまだ登録されていません。</div>
+        </div>
+      </section>
+
+      <section id="historyScreen" class="screen history-screen" aria-labelledby="historyTitle">
+        <div class="panel history-filter-panel">
+          <div class="section-heading-row">
+            <div>
+              <span class="eyebrow">HISTORY</span>
+              <h1 id="historyTitle">保存データ</h1>
+            </div>
+            <button id="backToScanBtn" class="text-btn" type="button">巡回へ戻る</button>
+          </div>
+          <div class="history-filter-grid">
+            <label>日付
+              <input id="historyDate" class="text-input" type="date" />
+            </label>
+            <label>店舗
+              <select id="historyStoreSelect" class="select-input full"></select>
+            </label>
+          </div>
+        </div>
+        <div class="panel compact-panel">
+          <div id="historyList" class="records-list"></div>
+          <div id="emptyHistory" class="empty-state">この条件の保存データはありません。</div>
+        </div>
+      </section>
+    </main>
+
+    <nav class="bottom-nav" aria-label="メインナビゲーション">
+      <button id="navStores" class="nav-btn active" type="button"><span class="nav-icon">▣</span><span>店舗</span></button>
+      <button id="navScan" class="nav-btn" type="button"><span class="nav-icon">✎</span><span>巡回</span></button>
+      <button id="navHistory" class="nav-btn" type="button"><span class="nav-icon">▤</span><span>履歴</span></button>
+    </nav>
+  </div>
+
+  <div id="modalBackdrop" class="modal-backdrop hidden" role="presentation">
+    <div class="modal" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
+      <div class="modal-mascot"><img src="assets/clown-face.png" alt="" /></div>
+      <h2 id="modalTitle">確認</h2>
+      <p id="modalMessage"></p>
+      <div class="modal-actions">
+        <button id="modalCancel" class="secondary-btn" type="button">キャンセル</button>
+        <button id="modalConfirm" class="primary-btn danger-aware" type="button">上書き</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="toast" class="toast hidden" role="status" aria-live="polite"></div>
+
+  <script src="app.js" defer></script>
+</body>
+</html>
